@@ -1,0 +1,9 @@
+<Solution>
+  <Project Path="BeyondTheBarcode.API/BeyondTheBarcode.API.csproj" />
+  <Project Path="BeyondTheBarcode.Application/BeyondTheBarcode.Application.csproj" />
+  <Project Path="BeyondTheBarcode.Domain/BeyondTheBarcode.Domain.csproj" />
+  <Project Path="BeyondTheBarcode.Infrastructure/BeyondTheBarcode.Infrastructure.csproj" />
+  <Project Path="BeyondTheBarcode.Persistence/BeyondTheBarcode.Persistence.csproj" />
+  <Project Path="BeyondTheBarcode.Shared/BeyondTheBarcode.Shared.csproj" />
+  <Project Path="BeyondTheBarcode.UnitTests/BeyondTheBarcode.UnitTests.csproj" />
+</Solution>
