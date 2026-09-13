@@ -45,56 +45,43 @@ namespace BeyondTheBarcode.Persistence.Repositories
         // Get Active Raw Materials
         public async Task<IEnumerable<RawMaterial>> GetActiveAsync()
         {
-            return await _dbSet
-                .Where(x => x.IsActive)
-                .ToListAsync();
+            return await _dbSet.Where(x => x.IsActive).ToListAsync();
         }
 
         // Get Inactive Raw Materials
         public async Task<IEnumerable<RawMaterial>> GetInactiveAsync()
         {
-            return await _dbSet
-                .Where(x => !x.IsActive)
-                .ToListAsync();
+            return await _dbSet.Where(x => !x.IsActive).ToListAsync();
         }
 
         // Get Raw Materials created between two dates
         public async Task<IEnumerable<RawMaterial>> GetByDateRangeAsync(DateTime fromDate, DateTime toDate)
         {
-            return await _dbSet
-                .Where(x => x.CreatedAt >= fromDate && x.CreatedAt <= toDate)
-                .ToListAsync();
+            return await _dbSet.Where(x => x.CreatedAt >= fromDate && x.CreatedAt <= toDate).ToListAsync();
         }
 
         // Check duplicate Material Code
         public async Task<bool> IsMaterialCodeExistsAsync(string materialCode)
         {
-            return await _dbSet
-                .AnyAsync(x => x.MaterialCode == materialCode);
+            return await _dbSet.AnyAsync(x => x.MaterialCode == materialCode);
         }
 
         // Get Raw Materials below Reorder Point
         public async Task<IEnumerable<RawMaterial>> GetLowStockAsync()
         {
-            return await _dbSet
-                .Where(x => x.CurrentStock <= x.ReorderPoint)
-                .ToListAsync();
+            return await _dbSet.Where(x => x.CurrentStock <= x.ReorderPoint).ToListAsync();
         }
 
         // Get Raw Materials supplied by a specific Supplier
         public async Task<IEnumerable<RawMaterial>> GetBySupplierAsync(int supplierId)
         {
-            return await _dbSet
-                .Where(x => x.PrimarySupplierId == supplierId)
-                .ToListAsync();
+            return await _dbSet.Where(x => x.PrimarySupplierId == supplierId).ToListAsync();
         }
 
         // Get Controlled Substance Raw Materials
         public async Task<IEnumerable<RawMaterial>> GetControlledSubstancesAsync()
         {
-            return await _dbSet
-                .Where(x => x.IsControlledSubstance)
-                .ToListAsync();
+            return await _dbSet.Where(x => x.IsControlledSubstance).ToListAsync();
         }
     }
 }
