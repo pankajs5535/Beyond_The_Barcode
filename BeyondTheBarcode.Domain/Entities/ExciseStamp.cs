@@ -15,7 +15,7 @@ RELATIONSHIP
 - Referenced by Batch Track & Trace.
 */
 
-public partial class ExciseStamp
+public class ExciseStamp
 {
     // =========================
     // Primary Key

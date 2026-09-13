@@ -13,7 +13,7 @@ RELATIONSHIP
 - Referenced by Batch Track & Trace.
 */
 
-public partial class WarehouseInventory
+public class WarehouseInventory
 {
     // =========================
     // Primary Key

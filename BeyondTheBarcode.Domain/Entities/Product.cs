@@ -16,7 +16,7 @@ RELATIONSHIP
 - Tracked through Batch Trace records.
 */
 
-public partial class Product
+public class Product
 {
     // =========================
     // Primary Key

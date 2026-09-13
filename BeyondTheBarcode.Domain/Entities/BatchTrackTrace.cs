@@ -22,7 +22,7 @@ RELATIONSHIP
 - May reference one Excise Stamp.
 */
 
-public partial class BatchTrackTrace
+public class BatchTrackTrace
 {
     // =========================
     // Primary Key

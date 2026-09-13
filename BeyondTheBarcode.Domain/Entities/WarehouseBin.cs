@@ -13,7 +13,7 @@ RELATIONSHIP
 - Can store Excise Stamps.
 */
 
-public partial class WarehouseBin
+public class WarehouseBin
 {
     // =========================
     // Primary Key

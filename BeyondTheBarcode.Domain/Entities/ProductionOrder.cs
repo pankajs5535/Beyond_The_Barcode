@@ -16,7 +16,7 @@ RELATIONSHIP
 - Uses Excise Stamps.
 */
 
-public partial class ProductionOrder
+public class ProductionOrder
 {
     // =========================
     // Primary Key

@@ -12,7 +12,7 @@ RELATIONSHIP
 - Referenced in Batch Track & Trace records.
 */
 
-public partial class Customer
+public class Customer
 {
     // =========================
     // Primary Key

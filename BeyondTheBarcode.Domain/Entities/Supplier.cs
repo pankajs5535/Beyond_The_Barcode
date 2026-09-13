@@ -13,7 +13,7 @@ RELATIONSHIP
 - One Supplier can be referenced in Batch Track & Trace records.
 */
 
-public partial class Supplier
+public class Supplier
 {
     // =========================
     // Primary Key

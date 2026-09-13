@@ -14,7 +14,7 @@ RELATIONSHIP
 - Referenced in Batch Track & Trace.
 */
 
-public partial class ShipmentLog
+public class ShipmentLog
 {
     // =========================
     // Primary Key

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BeyondTheBarcode.Persistence.Repositories
 {
-    public class RawMaterialRepository : GenericRepository<RawMaterial>, IRawMaterialRepository
+    public class RawMaterialRepository : GenericRepository<RawMaterial>, IRawMaterialRepository //Single Inheritance + Interface Implementation. ✅
     {
         public RawMaterialRepository(ApplicationDbContext context) : base(context)
         {

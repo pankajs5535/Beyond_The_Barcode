@@ -16,7 +16,7 @@ RELATIONSHIP
 - Tracked through Batch Trace records.
 */
 
-public partial class RawMaterial
+public class RawMaterial
 {
     // =========================
     // Primary Key

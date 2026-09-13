@@ -6,48 +6,55 @@ using BeyondTheBarcode.Persistence.Data;
 using BeyondTheBarcode.Persistence.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 
+using BeyondTheBarcode.API.Extensions;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// -------------------- CORS --------------------
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowReactApp", policy =>
-    {
-        policy.WithOrigins("http://localhost:3000")
-              .AllowAnyHeader()
-              .AllowAnyMethod();
-    });
-});
+builder.Services.AddApplicationServices(builder.Configuration);
 
-// -------------------- Controllers --------------------
-builder.Services.AddControllers();
+//// -------------------- CORS --------------------
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("AllowReactApp", policy =>
+//    {
+//        policy.WithOrigins("http://localhost:3000")
+//              .AllowAnyHeader()
+//              .AllowAnyMethod();
+//    });
+//});
 
-// -------------------- Database --------------------
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(
-        builder.Configuration.GetConnectionString("DefaultConnection")));
+//// -------------------- Controllers --------------------
+//builder.Services.AddControllers();
 
-// -------------------- Swagger --------------------
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+//// -------------------- Database --------------------
+//builder.Services.AddDbContext<ApplicationDbContext>(options =>
+//    options.UseSqlServer(
+//        builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// -------------------- Dependency Injection --------------------
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-builder.Services.AddScoped<ISupplierService, SupplierService>();
-builder.Services.AddScoped<ISalesOrderService, SalesOrderService>();
-builder.Services.AddScoped<IRawMaterialService, RawMaterialService>();
-builder.Services.AddScoped<IProductService, ProductService>();
-builder.Services.AddScoped<IBillOfMaterialsBomService, BillOfMaterialsBomService>();
-builder.Services.AddScoped<IMachineMasterService, MachineMasterService>();
-builder.Services.AddScoped<IProductionOrderService, ProductionOrderService>();
-builder.Services.AddScoped<IWarehouseBinService, WarehouseBinService>();
-builder.Services.AddScoped<IWarehouseInventoryService, WarehouseInventoryService>();
-builder.Services.AddScoped<ICustomerService, CustomerService>();
-builder.Services.AddScoped<IQualityControlLogService, QualityControlLogService>();
-builder.Services.AddScoped<IExciseStampService, ExciseStampService>();
-builder.Services.AddScoped<IPickingPackingListService, PickingPackingListService>();
-builder.Services.AddScoped<IShipmentLogService, ShipmentLogService>();
-builder.Services.AddScoped<IBatchTrackTraceService, BatchTrackTraceService>();
+
+
+
+//// -------------------- Swagger --------------------
+//builder.Services.AddEndpointsApiExplorer();
+//builder.Services.AddSwaggerGen();
+
+//// -------------------- Dependency Injection --------------------
+//builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+//builder.Services.AddScoped<ISupplierService, SupplierService>();
+//builder.Services.AddScoped<ISalesOrderService, SalesOrderService>();
+//builder.Services.AddScoped<IRawMaterialService, RawMaterialService>();
+//builder.Services.AddScoped<IProductService, ProductService>();
+//builder.Services.AddScoped<IBillOfMaterialsBomService, BillOfMaterialsBomService>();
+//builder.Services.AddScoped<IMachineMasterService, MachineMasterService>();
+//builder.Services.AddScoped<IProductionOrderService, ProductionOrderService>();
+//builder.Services.AddScoped<IWarehouseBinService, WarehouseBinService>();
+//builder.Services.AddScoped<IWarehouseInventoryService, WarehouseInventoryService>();
+//builder.Services.AddScoped<ICustomerService, CustomerService>();
+//builder.Services.AddScoped<IQualityControlLogService, QualityControlLogService>();
+//builder.Services.AddScoped<IExciseStampService, ExciseStampService>();
+//builder.Services.AddScoped<IPickingPackingListService, PickingPackingListService>();
+//builder.Services.AddScoped<IShipmentLogService, ShipmentLogService>();
+//builder.Services.AddScoped<IBatchTrackTraceService, BatchTrackTraceService>();
 
 
 
@@ -70,3 +77,4 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+

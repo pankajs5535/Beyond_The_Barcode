@@ -15,7 +15,7 @@ RELATIONSHIP
 - Referenced by Batch Track & Trace.
 */
 
-public partial class QualityControlLog
+public class QualityControlLog
 {
     // =========================
     // Primary Key

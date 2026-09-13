@@ -15,7 +15,7 @@ RELATIONSHIP
 - Used by Production Orders.
 */
 
-public partial class BillOfMaterialsBom
+public class BillOfMaterialsBom
 {
     // =========================
     // Primary Key

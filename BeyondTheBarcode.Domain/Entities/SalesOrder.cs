@@ -15,7 +15,7 @@ RELATIONSHIP
 - Referenced in Batch Track & Trace.
 */
 
-public partial class SalesOrder
+public class SalesOrder
 {
     // =========================
     // Primary Key

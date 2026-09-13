@@ -15,7 +15,7 @@ RELATIONSHIP
 - Can generate multiple Shipment Logs.
 */
 
-public partial class PickingPackingList
+public class PickingPackingList
 {
     // =========================
     // Primary Key

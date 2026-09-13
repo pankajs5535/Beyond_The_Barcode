@@ -11,7 +11,7 @@ RELATIONSHIP
 - One Machine can execute many Production Orders.
 */
 
-public partial class MachineMaster
+public class MachineMaster
 {
     // =========================
     // Primary Key
