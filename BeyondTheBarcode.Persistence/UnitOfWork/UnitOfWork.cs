@@ -130,6 +130,10 @@ UnitOfWork -> SaveAsync()
 
 All operations are committed together in a single transaction, improving performance, 
 maintaining data consistency, and following enterprise Repository + Unit of Work architecture. 
+
+
+Unit of Work is a design pattern that coordinates multiple repositories and manages a single transaction/save operation
+so that related database changes are committed as one unit.
  
  
 */
