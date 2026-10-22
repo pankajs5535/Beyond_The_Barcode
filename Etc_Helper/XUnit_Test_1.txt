@@ -1,0 +1,1868 @@
+/*
+ 
+BEYOND THE BARCODE — SUPPLIER SERVICE UNIT TESTING
+
+Testing Approach: Unit Testing using xUnit and Moq
+
+Step 1: Install the Moq NuGet Package
+
+Install the NuGet package named Moq in the BeyondTheBarcode.Tests project.
+
+Package Name: Moq
+Purpose: Mock dependencies to isolate SupplierService during unit testing.
+
+Testing Technologies:
+- Testing Framework: xUnit
+- Mocking Framework: Moq
+- Test Project: BeyondTheBarcode.Tests
+- Class Under Test: SupplierService
+
+Step 2: Create SupplierServiceTests.cs
+
+Create a file named SupplierServiceTests.cs inside the BeyondTheBarcode.Tests project.
+
+Step 3: Verify Project References
+
+Ensure that BeyondTheBarcode.Tests references the following projects:
+- BeyondTheBarcode.Application
+- BeyondTheBarcode.Domain
+
+These references are required to access SupplierService, DTOs, interfaces, and the Supplier entity.
+
+Step 4: Unit Test GetByIdAsync()
+
+We will perform unit testing of SupplierService using xUnit and Moq, testing one method at a time without changing the existing application code.
+
+Test Case 1: Supplier Exists
+Expected Result: Returns the correct SupplierDto containing the supplier details.
+
+Test Case 2: Supplier Does Not Exist
+Expected Result: Returns null.
+
+Step 5: Understand the Testing Concepts
+
+Arrange: Prepare test data and configure mock dependencies.
+Act: Execute the method being tested.
+Assert: Verify that the actual result matches the expected result.
+Moq: Creates mock dependencies to isolate the service from external dependencies, such as the repository and database.
+
+Step 6: Official References
+
+Moq Documentation:
+https://github.com/devlooped/moq
+
+xUnit Documentation:
+https://xunit.net/
+
+NuGet — Moq Package:
+https://www.nuget.org/packages/Moq
+
+NuGet — xUnit Package:
+https://www.nuget.org/packages/xunit/
+
+Next Step:
+Install Moq, verify the project references, and then implement and execute the two GetByIdAsync() unit tests.
+
+ */
+
+
+
+
+/*
+===============================================================================
+             BEYOND THE BARCODE - SUPPLIER SERVICE UNIT TESTING
+===============================================================================
+
+PROJECT:
+    BeyondTheBarcode.Tests
+
+CLASS:
+    SupplierServiceTests
+
+APPLICATION PROJECT:
+    BeyondTheBarcode.Application
+
+DOMAIN PROJECT:
+    BeyondTheBarcode.Domain
+
+PURPOSE:
+    This class tests the business logic implemented inside SupplierService.
+
+    It verifies that each service method behaves correctly when suppliers
+    exist, do not exist, or when repository operations are performed.
+
+TECHNOLOGIES:
+    1. xUnit
+       Testing framework used to write and execute unit tests.
+
+    2. Moq
+       Mocking library used to create fake dependencies.
+
+    3. Assert
+       Used to verify whether actual results match expected results.
+
+    4. Task and async/await
+       Used to test asynchronous service and repository methods.
+
+-------------------------------------------------------------------------------
+1. UNDERSTANDING UNIT TESTING
+-------------------------------------------------------------------------------
+
+WHAT IS UNIT TESTING?
+
+    Unit testing means testing a small, individual part of an application
+    independently from external dependencies.
+
+    In this project, SupplierService is the unit being tested.
+
+REAL-WORLD EXAMPLE:
+
+    Suppose an ERP system has 1,000 suppliers.
+
+    When a user searches for supplier ID 1, the application should return
+    the correct supplier details.
+
+    A unit test verifies this behavior automatically without requiring
+    a real database.
+
+WHY IS IT USED IN ENTERPRISE PROJECTS?
+
+    - Detects defects early.
+    - Verifies business logic.
+    - Prevents existing functionality from breaking.
+    - Makes refactoring safer.
+    - Reduces repetitive manual testing.
+    - Helps developers maintain reliable applications.
+
+IMPORTANT:
+
+    Unit testing does not prove that the entire application works.
+    It verifies the specific behavior covered by the tests.
+
+-------------------------------------------------------------------------------
+2. UNDERSTANDING THE DEPENDENCIES
+-------------------------------------------------------------------------------
+
+SupplierService depends on IUnitOfWork.
+
+IUnitOfWork provides access to ISupplierRepository through its Suppliers
+property.
+
+The repository performs operations such as:
+
+    - Retrieving suppliers.
+    - Adding suppliers.
+    - Updating suppliers.
+    - Deleting suppliers.
+    - Searching suppliers.
+    - Checking whether supplier codes and tax numbers exist.
+
+NORMAL APPLICATION FLOW:
+
+    API Controller
+          |
+          v
+    SupplierService
+          |
+          v
+    IUnitOfWork
+          |
+          v
+    ISupplierRepository
+          |
+          v
+    Database
+
+UNIT TEST FLOW:
+
+    SupplierServiceTests
+          |
+          v
+    Actual SupplierService
+          |
+          v
+    Mock IUnitOfWork
+          |
+          v
+    Mock ISupplierRepository
+          |
+          v
+    Predefined Test Data
+
+IMPORTANT:
+
+    SupplierService is REAL.
+
+    IUnitOfWork is MOCKED.
+
+    ISupplierRepository is MOCKED.
+
+    No real database is required for these unit tests.
+
+The mocked repository returns the test data configured by the developer.
+
+-------------------------------------------------------------------------------
+3. UNDERSTANDING THE TEST CLASS FIELDS
+-------------------------------------------------------------------------------
+
+FIELD 1:
+    private readonly Mock<IUnitOfWork> _unitOfWorkMock;
+
+PURPOSE:
+
+    Creates a mock implementation of IUnitOfWork.
+
+WHY IS IT REQUIRED?
+
+    SupplierService depends on IUnitOfWork.
+
+    Instead of creating the real UnitOfWork, we create a mock that allows
+    us to control the behavior of its dependencies.
+
+REAL-WORLD EXAMPLE:
+
+    Instead of connecting to SQL Server, the test provides a fake repository
+    that returns predefined supplier information.
+
+-------------------------------------------------------------------------------
+
+FIELD 2:
+    private readonly Mock<ISupplierRepository> _supplierRepositoryMock;
+
+PURPOSE:
+
+    Creates a mock implementation of ISupplierRepository.
+
+WHY IS IT REQUIRED?
+
+    It allows us to control what happens when SupplierService calls
+    repository methods.
+
+EXAMPLE:
+
+    When GetByIdAsync(1) is called, the mock can return a Supplier object.
+
+    When GetByIdAsync(99) is called, the mock can return null.
+
+    This allows us to test both situations without a database.
+
+-------------------------------------------------------------------------------
+
+FIELD 3:
+    private readonly SupplierService _supplierService;
+
+PURPOSE:
+
+    Stores the actual SupplierService object being tested.
+
+IMPORTANT:
+
+    We do not mock SupplierService itself.
+
+    We create the actual service and provide its dependencies through
+    dependency injection.
+
+WHY?
+
+    We want to test the real implementation of SupplierService rather
+    than testing the behavior of another mock.
+
+-------------------------------------------------------------------------------
+4. TEST CLASS CONSTRUCTOR
+-------------------------------------------------------------------------------
+
+CONSTRUCTOR:
+    public SupplierServiceTests()
+
+PURPOSE:
+
+    Initializes the mock objects and creates the actual SupplierService.
+
+STEP 1:
+    _unitOfWorkMock = new Mock<IUnitOfWork>();
+
+EXPLANATION:
+
+    Creates a mock of IUnitOfWork.
+
+    The mock allows us to configure how the UnitOfWork behaves during tests.
+
+STEP 2:
+    _supplierRepositoryMock = new Mock<ISupplierRepository>();
+
+EXPLANATION:
+
+    Creates a mock of ISupplierRepository.
+
+    Repository methods can now return predefined results.
+
+STEP 3:
+    _unitOfWorkMock
+        .Setup(u => u.Suppliers)
+        .Returns(_supplierRepositoryMock.Object);
+
+EXPLANATION:
+
+    Setup() configures the behavior of a mock.
+
+    u => u.Suppliers identifies the Suppliers property.
+
+    Returns() specifies what the mock should return when that property
+    is accessed.
+
+    _supplierRepositoryMock.Object provides the actual mock object that
+    SupplierService can use through the ISupplierRepository interface.
+
+RESULT:
+
+    Whenever SupplierService accesses _unitOfWork.Suppliers, it receives
+    the mocked SupplierRepository.
+
+STEP 4:
+    _supplierService =
+        new SupplierService(_unitOfWorkMock.Object);
+
+EXPLANATION:
+
+    Creates the real SupplierService.
+
+    _unitOfWorkMock.Object provides the mock implementation of IUnitOfWork.
+
+    The service receives that mock through its constructor.
+
+WHY IS THIS IMPORTANT?
+
+    Dependency injection allows us to replace real dependencies with
+    mocks during unit testing.
+
+CONSTRUCTOR EXECUTION:
+
+    xUnit creates a new instance of the test class for each test.
+
+    Therefore, the constructor prepares fresh mocks for each test.
+
+-------------------------------------------------------------------------------
+5. HELPER METHOD: CreateSupplier()
+-------------------------------------------------------------------------------
+
+METHOD:
+    private static Supplier CreateSupplier()
+
+PURPOSE:
+
+    Creates a Supplier entity containing reusable test data.
+
+EXAMPLE DATA:
+
+    SupplierId   = 1
+    SupplierCode = "SUP001"
+    SupplierName = "ABC Suppliers"
+    SupplierType = "Raw Material"
+    Email        = "abc@example.com"
+    Phone        = "9876543210"
+    IsApproved   = true
+    IsActive     = true
+
+WHY IS IT USED?
+
+    Several test methods need a Supplier object.
+
+    Instead of repeatedly writing the same initialization code, we use
+    this helper method.
+
+BENEFITS:
+
+    - Reduces duplicate code.
+    - Improves readability.
+    - Makes tests easier to maintain.
+    - Keeps test data consistent.
+
+IMPORTANT:
+
+    This helper creates an in-memory object.
+
+    It does not insert a supplier into the database.
+
+===============================================================================
+6. ARRANGE, ACT, ASSERT (AAA) PATTERN
+===============================================================================
+
+Most unit tests follow three steps.
+
+ARRANGE:
+
+    Prepare test data and configure mock behavior.
+
+    Example:
+        Create a Supplier object.
+        Configure GetByIdAsync(1) to return that supplier.
+
+ACT:
+
+    Call the actual service method being tested.
+
+    Example:
+        await _supplierService.GetByIdAsync(1);
+
+ASSERT:
+
+    Verify that the result matches the expected behavior.
+
+    Example:
+        Assert.NotNull(result);
+        Assert.Equal("SUP001", result.SupplierCode);
+
+WHY IS AAA IMPORTANT?
+
+    It separates preparation, execution, and verification.
+
+    This makes unit tests easier to understand, debug, and maintain.
+
+===============================================================================
+7. TEST METHOD 1: GetAllAsync()
+===============================================================================
+
+SERVICE METHOD:
+    GetAllAsync()
+
+TEST METHOD:
+    GetAllAsync_ReturnsAllSuppliers()
+
+OBJECTIVE:
+
+    Verify that the service returns all suppliers provided by the repository.
+
+ARRANGE:
+
+    Create a collection containing two Supplier objects.
+
+    Configure the mocked repository:
+
+        GetAllAsync()
+            -> Returns the prepared supplier collection.
+
+ACT:
+
+    Call:
+
+        await _supplierService.GetAllAsync();
+
+    The service retrieves the collection from the mocked repository.
+
+    It then maps the Supplier entities into SupplierDto objects.
+
+ASSERT:
+
+    Assert.Equal(2, result.Count());
+
+    Verifies that the result contains two suppliers.
+
+EXPECTED RESULT:
+
+    The test passes when the service returns both suppliers.
+
+REAL-WORLD IMPORTANCE:
+
+    Used when displaying the supplier list on an ERP administration screen.
+
+CURRENT COVERAGE:
+
+    Verifies that two suppliers are returned.
+
+    An additional test could verify behavior when the repository returns
+    an empty collection.
+
+===============================================================================
+8. TEST METHOD 2: GetByIdAsync()
+===============================================================================
+
+SERVICE METHOD:
+    GetByIdAsync(int id)
+
+PURPOSE:
+
+    Retrieves one supplier using its unique identifier.
+
+-------------------------------------------------------------------------------
+TEST CASE 1: SUPPLIER EXISTS
+-------------------------------------------------------------------------------
+
+TEST METHOD:
+    GetByIdAsync_WhenSupplierExists_ReturnsDto()
+
+OBJECTIVE:
+
+    Verify that the correct SupplierDto is returned when the supplier exists.
+
+ARRANGE:
+
+    Create a Supplier object with:
+
+        SupplierId   = 1
+        SupplierCode = "SUP001"
+        SupplierName = "ABC Suppliers"
+
+    Configure the mocked repository:
+
+        GetByIdAsync(1)
+            -> Returns the Supplier object.
+
+ACT:
+
+    Call:
+
+        await _supplierService.GetByIdAsync(1);
+
+    The service retrieves the Supplier entity and maps it to a DTO.
+
+ASSERT:
+
+    Assert.NotNull(result);
+
+        Confirms that the result is not null.
+
+    Assert.Equal("SUP001", result.SupplierCode);
+
+        Verifies that the supplier code was mapped correctly.
+
+    Assert.Equal("ABC Suppliers", result.SupplierName);
+
+        Verifies that the supplier name was mapped correctly.
+
+EXPECTED RESULT:
+
+    The test passes when the DTO contains the expected supplier information.
+
+-------------------------------------------------------------------------------
+TEST CASE 2: SUPPLIER DOES NOT EXIST
+-------------------------------------------------------------------------------
+
+TEST METHOD:
+    GetByIdAsync_WhenSupplierDoesNotExist_ReturnsNull()
+
+OBJECTIVE:
+
+    Verify that the service returns null when the requested supplier
+    does not exist.
+
+ARRANGE:
+
+    Configure the mocked repository:
+
+        GetByIdAsync(99)
+            -> Returns null.
+
+    ReturnsAsync((Supplier?)null) simulates an asynchronous repository
+    call that produces no Supplier object.
+
+ACT:
+
+    Call:
+
+        await _supplierService.GetByIdAsync(99);
+
+    The service receives null from the repository and returns null.
+
+ASSERT:
+
+    Assert.Null(result);
+
+        Confirms that no DTO is returned.
+
+EXPECTED RESULT:
+
+    The test passes when the result is null.
+
+REAL-WORLD IMPORTANCE:
+
+    This behavior helps the application handle requests for nonexistent
+    supplier records.
+
+===============================================================================
+9. TEST METHOD 3: AddAsync()
+===============================================================================
+
+SERVICE METHOD:
+    AddAsync(CreateSupplierDto supplier)
+
+TEST METHOD:
+    AddAsync_AddsSupplierAndSavesChanges()
+
+OBJECTIVE:
+
+    Verify that the service creates a Supplier entity, sends it to the
+    repository, and saves the changes.
+
+ARRANGE:
+
+    Create a CreateSupplierDto containing:
+
+        SupplierCode = "SUP003"
+        SupplierName = "New Supplier"
+
+    Configure the mocked repository:
+
+        AddAsync(any Supplier)
+            -> Completes successfully.
+
+    Configure the mocked UnitOfWork:
+
+        SaveAsync()
+            -> Returns 1.
+
+    The value 1 represents the simulated result of one saved change.
+
+ACT:
+
+    Call:
+
+        await _supplierService.AddAsync(dto);
+
+    The service creates a Supplier entity from the DTO.
+
+    It copies the relevant properties, sets creation and update timestamps,
+    adds the entity through the repository, and calls SaveAsync().
+
+ASSERT:
+
+    Verify that AddAsync() was called once with a Supplier whose code
+    and name match the DTO.
+
+    Verify that SaveAsync() was called once.
+
+EXPECTED RESULT:
+
+    The test passes when the expected Supplier entity is submitted to
+    the repository and the save operation is requested.
+
+REAL-WORLD IMPORTANCE:
+
+    Used when an authorized user registers a new supplier in the ERP system.
+
+IMPORTANT:
+
+    This test does not verify that a real database insert succeeds.
+
+    The repository and UnitOfWork are mocked.
+
+===============================================================================
+10. TEST METHOD 4: UpdateAsync()
+===============================================================================
+
+SERVICE METHOD:
+    UpdateAsync(UpdateSupplierDto supplier)
+
+PURPOSE:
+
+    Updates an existing supplier.
+
+-------------------------------------------------------------------------------
+TEST CASE 1: SUPPLIER EXISTS
+-------------------------------------------------------------------------------
+
+TEST METHOD:
+    UpdateAsync_WhenSupplierExists_UpdatesSupplier()
+
+OBJECTIVE:
+
+    Verify that the service updates an existing supplier.
+
+ARRANGE:
+
+    Create an existing Supplier object.
+
+    Create an UpdateSupplierDto containing:
+
+        SupplierId   = 1
+        SupplierCode = "SUP001"
+        SupplierName = "Updated Supplier"
+
+    Configure:
+
+        GetByIdAsync(1)
+            -> Returns the existing Supplier.
+
+        SaveAsync()
+            -> Returns 1.
+
+ACT:
+
+    Call:
+
+        await _supplierService.UpdateAsync(dto);
+
+    The service retrieves the existing Supplier.
+
+    It copies the DTO values into the existing entity.
+
+    It updates UpdatedAt, calls repository Update(), and saves changes.
+
+ASSERT:
+
+    Assert.Equal("Updated Supplier", supplier.SupplierName);
+
+        Verifies that the supplier name was changed.
+
+    Verify Update(supplier) was called once.
+
+        Confirms that the repository was instructed to update the entity.
+
+    Verify SaveAsync() was called once.
+
+EXPECTED RESULT:
+
+    The test passes when the existing entity is updated and the save
+    operation is requested.
+
+-------------------------------------------------------------------------------
+TEST CASE 2: SUPPLIER DOES NOT EXIST
+-------------------------------------------------------------------------------
+
+TEST METHOD:
+    UpdateAsync_WhenSupplierDoesNotExist_ThrowsException()
+
+OBJECTIVE:
+
+    Verify that the service rejects an update when the supplier cannot
+    be found.
+
+ARRANGE:
+
+    Create an UpdateSupplierDto with:
+
+        SupplierId = 99
+
+    Configure:
+
+        GetByIdAsync(99)
+            -> Returns null.
+
+ACT:
+
+    Call UpdateAsync(dto).
+
+    The service cannot find the supplier and throws an Exception with
+    the message "Supplier not found."
+
+ASSERT:
+
+    Assert.ThrowsAsync<Exception>(...)
+
+        Verifies that an exception is thrown.
+
+EXPECTED RESULT:
+
+    The test passes when the service throws the expected exception type.
+
+REAL-WORLD IMPORTANCE:
+
+    Prevents the update operation from continuing when its target record
+    does not exist.
+
+NOTE:
+
+    A more precise test could also verify the exception message or use
+    a specific application exception type.
+
+===============================================================================
+11. TEST METHOD 5: DeleteAsync()
+===============================================================================
+
+SERVICE METHOD:
+    DeleteAsync(int id)
+
+PURPOSE:
+
+    Deletes one supplier using its identifier.
+
+-------------------------------------------------------------------------------
+TEST CASE 1: SUPPLIER EXISTS
+-------------------------------------------------------------------------------
+
+TEST METHOD:
+    DeleteAsync_WhenSupplierExists_DeletesSupplier()
+
+OBJECTIVE:
+
+    Verify that an existing supplier is passed to the repository for deletion.
+
+ARRANGE:
+
+    Create a Supplier object.
+
+    Configure:
+
+        GetByIdAsync(1)
+            -> Returns the Supplier.
+
+        SaveAsync()
+            -> Returns 1.
+
+ACT:
+
+    Call:
+
+        await _supplierService.DeleteAsync(1);
+
+    The service retrieves the supplier.
+
+    It calls repository Delete() and then SaveAsync().
+
+ASSERT:
+
+    Verify Delete(supplier) was called once.
+
+    Verify SaveAsync() was called once.
+
+EXPECTED RESULT:
+
+    The test passes when the service requests deletion and saving.
+
+-------------------------------------------------------------------------------
+TEST CASE 2: SUPPLIER DOES NOT EXIST
+-------------------------------------------------------------------------------
+
+TEST METHOD:
+    DeleteAsync_WhenSupplierDoesNotExist_ThrowsException()
+
+OBJECTIVE:
+
+    Verify that the service throws an exception when the supplier cannot
+    be found.
+
+ARRANGE:
+
+    Configure GetByIdAsync(99) to return null.
+
+ACT:
+
+    Call:
+
+        await _supplierService.DeleteAsync(99);
+
+ASSERT:
+
+    Assert.ThrowsAsync<Exception>(...)
+
+EXPECTED RESULT:
+
+    The test passes when the service throws an exception.
+
+REAL-WORLD IMPORTANCE:
+
+    Prevents the service from attempting to delete a nonexistent supplier.
+
+IMPORTANT:
+
+    These tests verify repository calls, not deletion from a real database.
+
+===============================================================================
+12. TEST METHOD 6: DeleteMultipleAsync()
+===============================================================================
+
+SERVICE METHOD:
+    DeleteMultipleAsync(DeleteMultipleSuppliersDto dto)
+
+TEST METHOD:
+    DeleteMultipleAsync_DeletesExistingSuppliers()
+
+OBJECTIVE:
+
+    Verify that the service processes multiple supplier identifiers and
+    requests deletion for existing suppliers.
+
+ARRANGE:
+
+    Create a DeleteMultipleSuppliersDto containing supplier ID 1.
+
+    Create a Supplier object.
+
+    Configure:
+
+        GetByIdAsync(1)
+            -> Returns the Supplier.
+
+        SaveAsync()
+            -> Returns 1.
+
+ACT:
+
+    Call:
+
+        await _supplierService.DeleteMultipleAsync(dto);
+
+    The service loops through the supplied identifiers.
+
+    For each identifier, it retrieves the supplier.
+
+    When the supplier exists, it calls Delete().
+
+    After processing the identifiers, it calls SaveAsync().
+
+ASSERT:
+
+    Verify Delete(supplier) was called once.
+
+    Verify SaveAsync() was called once.
+
+EXPECTED RESULT:
+
+    The test passes when the existing supplier is selected for deletion
+    and changes are saved once.
+
+REAL-WORLD IMPORTANCE:
+
+    Useful when an administrator selects multiple suppliers and performs
+    a bulk-delete operation.
+
+CURRENT COVERAGE:
+
+    Tests one existing supplier ID.
+
+    Additional tests should cover multiple IDs, missing IDs, and an empty
+    list if those scenarios are important to the application's requirements.
+
+===============================================================================
+13. TEST METHOD 7: GetByCodeAsync()
+===============================================================================
+
+SERVICE METHOD:
+    GetByCodeAsync(string code)
+
+TEST METHOD:
+    GetByCodeAsync_WhenSupplierExists_ReturnsDto()
+
+OBJECTIVE:
+
+    Verify that the service retrieves a supplier using its supplier code.
+
+ARRANGE:
+
+    Create a Supplier object with:
+
+        SupplierCode = "SUP001"
+
+    Configure:
+
+        GetByCodeAsync("SUP001")
+            -> Returns the Supplier.
+
+ACT:
+
+    Call:
+
+        await _supplierService.GetByCodeAsync("SUP001");
+
+    The service retrieves the entity and maps it into a SupplierDto.
+
+ASSERT:
+
+    Assert.NotNull(result);
+
+        Confirms that a DTO was returned.
+
+    Assert.Equal("SUP001", result.SupplierCode);
+
+        Verifies the supplier code.
+
+EXPECTED RESULT:
+
+    The test passes when the expected supplier DTO is returned.
+
+REAL-WORLD IMPORTANCE:
+
+    Supplier codes are often used by employees to identify suppliers quickly.
+
+CURRENT COVERAGE:
+
+    Tests the successful lookup scenario.
+
+    A separate test could verify that the method returns null when the
+    code does not match any supplier.
+
+===============================================================================
+14. TEST METHOD 8: SearchAsync()
+===============================================================================
+
+SERVICE METHOD:
+    SearchAsync(string keyword)
+
+TEST METHOD:
+    SearchAsync_ReturnsMatchingSuppliers()
+
+OBJECTIVE:
+
+    Verify that the service returns suppliers provided by the repository
+    for a search keyword.
+
+ARRANGE:
+
+    Prepare a collection containing:
+
+        SupplierName = "ABC Suppliers"
+
+    Configure:
+
+        SearchAsync("ABC")
+            -> Returns the prepared collection.
+
+ACT:
+
+    Call:
+
+        await _supplierService.SearchAsync("ABC");
+
+    The service calls the repository's search method.
+
+    It maps the returned entities into SupplierDto objects.
+
+ASSERT:
+
+    Assert.Single(result);
+
+        Verifies that exactly one supplier was returned.
+
+    Assert.Equal("ABC Suppliers", result.First().SupplierName);
+
+        Verifies the returned supplier's name.
+
+EXPECTED RESULT:
+
+    The test passes when one supplier with the expected name is returned.
+
+REAL-WORLD IMPORTANCE:
+
+    Allows employees to search supplier records using keywords.
+
+IMPORTANT:
+
+    Because the repository is mocked, this test does not verify the actual
+    search query or whether the keyword matches database records correctly.
+
+===============================================================================
+15. TEST METHOD 9: GetByTypeAsync()
+===============================================================================
+
+SERVICE METHOD:
+    GetByTypeAsync(string type)
+
+TEST METHOD:
+    GetByTypeAsync_ReturnsSuppliersOfRequestedType()
+
+OBJECTIVE:
+
+    Verify that the service requests suppliers of a specified type and
+    returns the repository's results as DTOs.
+
+ARRANGE:
+
+    Create a Supplier object with:
+
+        SupplierType = "Raw Material"
+
+    Configure:
+
+        GetByTypeAsync("Raw Material")
+            -> Returns the Supplier collection.
+
+ACT:
+
+    Call:
+
+        await _supplierService.GetByTypeAsync("Raw Material");
+
+    The service calls the repository and maps the returned entities.
+
+ASSERT:
+
+    Assert.Single(result);
+
+        Verifies that one supplier was returned.
+
+    Assert.Equal("Raw Material", result.First().SupplierType);
+
+        Verifies the supplier type.
+
+EXPECTED RESULT:
+
+    The test passes when the expected supplier is returned.
+
+REAL-WORLD IMPORTANCE:
+
+    An ERP system may classify suppliers by the materials or services
+    they provide.
+
+IMPORTANT:
+
+    This test verifies the service's handling of repository results.
+    It does not verify the repository's actual filtering logic.
+
+===============================================================================
+16. TEST METHOD 10: GetApprovedSuppliersAsync()
+===============================================================================
+
+SERVICE METHOD:
+    GetApprovedSuppliersAsync()
+
+TEST METHOD:
+    GetApprovedSuppliersAsync_ReturnsSuppliers()
+
+OBJECTIVE:
+
+    Verify that the service returns the suppliers provided by the
+    repository's approved-supplier query.
+
+ARRANGE:
+
+    Create a Supplier object with:
+
+        IsApproved = true
+
+    Configure:
+
+        GetApprovedSuppliersAsync()
+            -> Returns the Supplier collection.
+
+ACT:
+
+    Call:
+
+        await _supplierService.GetApprovedSuppliersAsync();
+
+    The service calls the repository and maps the results into DTOs.
+
+ASSERT:
+
+    Assert.Single(result);
+
+        Verifies that one supplier was returned.
+
+    Assert.True(result.First().IsApproved);
+
+        Verifies that the returned supplier is marked as approved.
+
+EXPECTED RESULT:
+
+    The test passes when the returned supplier is marked as approved.
+
+REAL-WORLD IMPORTANCE:
+
+    Employees may need to select only approved suppliers when purchasing
+    raw materials.
+
+IMPORTANT:
+
+    The mock supplies an approved supplier directly.
+
+    This test does not prove that the real repository excludes unapproved
+    suppliers correctly.
+
+===============================================================================
+17. TEST METHOD 11: GetActiveSuppliersAsync()
+===============================================================================
+
+SERVICE METHOD:
+    GetActiveSuppliersAsync()
+
+TEST METHOD:
+    GetActiveSuppliersAsync_ReturnsSuppliers()
+
+OBJECTIVE:
+
+    Verify that the service returns the repository's active-supplier results.
+
+ARRANGE:
+
+    Create a Supplier object with:
+
+        IsActive = true
+
+    Configure:
+
+        GetActiveSuppliersAsync()
+            -> Returns the Supplier collection.
+
+ACT:
+
+    Call:
+
+        await _supplierService.GetActiveSuppliersAsync();
+
+    The service retrieves the collection and maps its entities into DTOs.
+
+ASSERT:
+
+    Assert.Single(result);
+
+        Verifies that one supplier was returned.
+
+    Assert.True(result.First().IsActive);
+
+        Verifies that the supplier is marked as active.
+
+EXPECTED RESULT:
+
+    The test passes when the returned supplier is active.
+
+REAL-WORLD IMPORTANCE:
+
+    Employees commonly need to select active suppliers when creating
+    purchase orders.
+
+IMPORTANT:
+
+    The repository's filtering logic is not tested here because the
+    repository is mocked.
+
+===============================================================================
+18. TEST METHOD 12: GetInactiveSuppliersAsync()
+===============================================================================
+
+SERVICE METHOD:
+    GetInactiveSuppliersAsync()
+
+TEST METHOD:
+    GetInactiveSuppliersAsync_ReturnsSuppliers()
+
+OBJECTIVE:
+
+    Verify that the service returns the repository's inactive-supplier
+    results.
+
+ARRANGE:
+
+    Create a Supplier object.
+
+    Set:
+
+        IsActive = false
+
+    Configure:
+
+        GetInactiveSuppliersAsync()
+            -> Returns the Supplier collection.
+
+ACT:
+
+    Call:
+
+        await _supplierService.GetInactiveSuppliersAsync();
+
+    The service retrieves the collection and maps the entities into DTOs.
+
+ASSERT:
+
+    Assert.Single(result);
+
+        Verifies that one supplier was returned.
+
+    Assert.False(result.First().IsActive);
+
+        Verifies that the supplier is inactive.
+
+EXPECTED RESULT:
+
+    The test passes when the returned supplier is inactive.
+
+REAL-WORLD IMPORTANCE:
+
+    Helps administrators review suppliers that are no longer active.
+
+IMPORTANT:
+
+    The test does not independently verify the repository's database filter.
+
+===============================================================================
+19. TEST METHOD 13: GetByDateRangeAsync()
+===============================================================================
+
+SERVICE METHOD:
+    GetByDateRangeAsync(DateTime fromDate, DateTime toDate)
+
+TEST METHOD:
+    GetByDateRangeAsync_ReturnsSuppliers()
+
+OBJECTIVE:
+
+    Verify that the service forwards the supplied date range to the
+    repository and returns the resulting supplier collection.
+
+ARRANGE:
+
+    Define:
+
+        fromDate = 1 January 2026
+        toDate   = 31 December 2026
+
+    Create a Supplier object.
+
+    Configure:
+
+        GetByDateRangeAsync(fromDate, toDate)
+            -> Returns the Supplier collection.
+
+ACT:
+
+    Call:
+
+        await _supplierService.GetByDateRangeAsync(fromDate, toDate);
+
+    The service passes both dates to the repository.
+
+    It maps the repository results into DTOs.
+
+ASSERT:
+
+    Assert.Single(result);
+
+        Verifies that one supplier was returned.
+
+EXPECTED RESULT:
+
+    The test passes when the returned collection contains one supplier.
+
+REAL-WORLD IMPORTANCE:
+
+    Date-range searches can help administrators review supplier records
+    over a particular period.
+
+IMPORTANT:
+
+    The current test does not verify that the repository correctly filters
+    suppliers by date. That requires separate repository or integration tests.
+
+===============================================================================
+20. TEST METHOD 14: IsSupplierCodeExistsAsync()
+===============================================================================
+
+SERVICE METHOD:
+    IsSupplierCodeExistsAsync(string supplierCode)
+
+TEST METHOD:
+    IsSupplierCodeExistsAsync_WhenCodeExists_ReturnsTrue()
+
+OBJECTIVE:
+
+    Verify that the service returns the repository's result when checking
+    whether a supplier code exists.
+
+ARRANGE:
+
+    Configure:
+
+        IsSupplierCodeExistsAsync("SUP001")
+            -> Returns true.
+
+ACT:
+
+    Call:
+
+        await _supplierService.IsSupplierCodeExistsAsync("SUP001");
+
+    The service forwards the supplier code to the repository and returns
+    the resulting Boolean value.
+
+ASSERT:
+
+    Assert.True(result);
+
+        Verifies that the result is true.
+
+EXPECTED RESULT:
+
+    The test passes when the service returns true.
+
+REAL-WORLD IMPORTANCE:
+
+    Helps prevent duplicate supplier codes when registering a supplier.
+
+CURRENT COVERAGE:
+
+    Tests the scenario in which the code exists.
+
+    An additional test should verify that the service returns false when
+    the repository reports that the code does not exist.
+
+===============================================================================
+21. TEST METHOD 15: IsGstNumberExistsAsync()
+===============================================================================
+
+SERVICE METHOD:
+    IsGstNumberExistsAsync(string gstNumber)
+
+TEST METHOD:
+    IsGstNumberExistsAsync_WhenGstExists_ReturnsTrue()
+
+OBJECTIVE:
+
+    Verify that the service returns the repository's result when checking
+    whether a GST number exists.
+
+ARRANGE:
+
+    Configure:
+
+        IsGstNumberExistsAsync("GST123")
+            -> Returns true.
+
+ACT:
+
+    Call:
+
+        await _supplierService.IsGstNumberExistsAsync("GST123");
+
+    The service forwards the GST number to the repository.
+
+    The repository's Boolean result is returned by the service.
+
+ASSERT:
+
+    Assert.True(result);
+
+        Verifies that the result is true.
+
+EXPECTED RESULT:
+
+    The test passes when the service returns true.
+
+REAL-WORLD IMPORTANCE:
+
+    Checking for duplicate GST numbers helps enforce supplier-data
+    consistency, subject to the application's business rules.
+
+CURRENT COVERAGE:
+
+    Tests the scenario in which the GST number exists.
+
+    An additional test should verify the false result.
+
+IMPORTANT:
+
+    This test does not validate the GST number's format or confirm its
+    validity with an external tax authority.
+
+===============================================================================
+22. TEST METHOD 16: IsPanNumberExistsAsync()
+===============================================================================
+
+SERVICE METHOD:
+    IsPanNumberExistsAsync(string panNumber)
+
+TEST METHOD:
+    IsPanNumberExistsAsync_WhenPanExists_ReturnsTrue()
+
+OBJECTIVE:
+
+    Verify that the service returns the repository's result when checking
+    whether a PAN number exists.
+
+ARRANGE:
+
+    Configure:
+
+        IsPanNumberExistsAsync("PAN123")
+            -> Returns true.
+
+ACT:
+
+    Call:
+
+        await _supplierService.IsPanNumberExistsAsync("PAN123");
+
+    The service forwards the PAN number to the repository.
+
+    The repository's Boolean result is returned by the service.
+
+ASSERT:
+
+    Assert.True(result);
+
+        Verifies that the result is true.
+
+EXPECTED RESULT:
+
+    The test passes when the service returns true.
+
+REAL-WORLD IMPORTANCE:
+
+    Helps identify duplicate PAN numbers when maintaining supplier records,
+    according to the application's business rules.
+
+CURRENT COVERAGE:
+
+    Tests the scenario in which the PAN number exists.
+
+    An additional test should verify the false result.
+
+IMPORTANT:
+
+    This test does not validate the PAN format or verify the number against
+    an external government service.
+
+===============================================================================
+23. UNDERSTANDING IMPORTANT xUnit ATTRIBUTES
+===============================================================================
+
+[Fact]
+
+    Marks a method as an individual test case.
+
+    xUnit discovers and executes methods marked with [Fact].
+
+    Example:
+
+        [Fact]
+        public async Task GetByIdAsync_WhenSupplierExists_ReturnsDto()
+
+-------------------------------------------------------------------------------
+
+Assert.Equal(expected, actual)
+
+    Verifies that the expected and actual values are equal.
+
+    Example:
+
+        Assert.Equal("SUP001", result.SupplierCode);
+
+    Expected value:
+        "SUP001"
+
+    Actual value:
+        result.SupplierCode
+
+-------------------------------------------------------------------------------
+
+Assert.NotNull(result)
+
+    Verifies that the result is not null.
+
+-------------------------------------------------------------------------------
+
+Assert.Null(result)
+
+    Verifies that the result is null.
+
+-------------------------------------------------------------------------------
+
+Assert.True(result)
+
+    Verifies that the result is true.
+
+-------------------------------------------------------------------------------
+
+Assert.False(result)
+
+    Verifies that the result is false.
+
+-------------------------------------------------------------------------------
+
+Assert.Single(result)
+
+    Verifies that a collection contains exactly one item.
+
+-------------------------------------------------------------------------------
+
+Assert.ThrowsAsync<Exception>(...)
+
+    Verifies that an asynchronous operation throws the specified exception
+    type.
+
+-------------------------------------------------------------------------------
+
+Verify(..., Times.Once)
+
+    Moq's Verify method checks whether a mocked method was called.
+
+    Times.Once means the method must have been called exactly once.
+
+    Example:
+
+        _unitOfWorkMock.Verify(
+            u => u.SaveAsync(),
+            Times.Once);
+
+    This verifies that SaveAsync() was called exactly once.
+
+===============================================================================
+24. UNDERSTANDING IMPORTANT Moq METHODS
+===============================================================================
+
+Mock<T>
+
+    Creates a mock implementation of an interface or mockable class.
+
+Setup()
+
+    Configures what a mock should do when a particular member is accessed
+    or called.
+
+Returns()
+
+    Specifies the value returned by a configured mock member.
+
+ReturnsAsync()
+
+    Specifies the asynchronous result returned by a mocked asynchronous
+    method.
+
+It.IsAny<T>()
+
+    Matches any argument of the specified type.
+
+    Example:
+
+        It.IsAny<Supplier>()
+
+    Matches any Supplier object.
+
+It.Is<T>()
+
+    Matches an argument when the specified condition is satisfied.
+
+    Example:
+
+        It.Is<Supplier>(
+            s => s.SupplierCode == "SUP003")
+
+    Matches a Supplier whose SupplierCode is SUP003.
+
+Verify()
+
+    Checks whether the configured interaction occurred.
+
+Times.Once
+
+    Requires exactly one invocation.
+
+Object
+
+    Provides the mock object that can be passed to code expecting the
+    mocked interface.
+
+===============================================================================
+25. WHY MOCKING IS IMPORTANT
+===============================================================================
+
+WITHOUT MOCKING:
+
+    Tests may depend on:
+
+        - A running database.
+        - Existing database records.
+        - Database configuration.
+        - External infrastructure.
+
+    These dependencies can make tests slower and harder to control.
+
+WITH MOCKING:
+
+    Tests can provide predefined responses without using a real database.
+
+BENEFITS:
+
+    1. Faster execution.
+    2. Predictable test data.
+    3. Independent testing of service logic.
+    4. Easier testing of success and failure scenarios.
+    5. No need to insert test records into SQL Server.
+    6. Easier diagnosis when a test fails.
+
+IMPORTANT LIMITATION:
+
+    Mocking the repository does not test the repository's actual database
+    queries.
+
+    Repository queries, Entity Framework Core configuration, and database
+    integration should be covered by appropriate integration tests.
+
+===============================================================================
+26. WHY ASYNC AND AWAIT ARE USED
+===============================================================================
+
+Many service and repository methods return Task or Task<T>.
+
+For example:
+
+    Task<Supplier?> GetByIdAsync(int id);
+
+This indicates that the operation is asynchronous.
+
+In a test, we use:
+
+    var result = await _supplierService.GetByIdAsync(1);
+
+WHY?
+
+    await waits asynchronously for the operation to finish and provides
+    its result.
+
+    It allows the test to assert the returned value after the service
+    method has completed.
+
+IMPORTANT:
+
+    Do not block asynchronous test execution unnecessarily using .Result
+    or .Wait().
+
+===============================================================================
+27. CURRENT TEST COVERAGE SUMMARY
+===============================================================================
+
+The test class contains tests for these 16 service methods:
+
+    1.  GetAllAsync()
+    2.  GetByIdAsync(int id)
+    3.  AddAsync(CreateSupplierDto supplier)
+    4.  UpdateAsync(UpdateSupplierDto supplier)
+    5.  DeleteAsync(int id)
+    6.  DeleteMultipleAsync(DeleteMultipleSuppliersDto dto)
+    7.  GetByCodeAsync(string code)
+    8.  SearchAsync(string keyword)
+    9.  GetByTypeAsync(string type)
+    10. GetApprovedSuppliersAsync()
+    11. GetActiveSuppliersAsync()
+    12. GetInactiveSuppliersAsync()
+    13. GetByDateRangeAsync(DateTime fromDate, DateTime toDate)
+    14. IsSupplierCodeExistsAsync(string supplierCode)
+    15. IsGstNumberExistsAsync(string gstNumber)
+    16. IsPanNumberExistsAsync(string panNumber)
+
+SUCCESS SCENARIOS:
+
+    - Supplier retrieval.
+    - Supplier creation.
+    - Supplier update.
+    - Supplier deletion.
+    - Multiple supplier deletion.
+    - Supplier searches and filters.
+    - Supplier existence checks.
+
+FAILURE SCENARIOS CURRENTLY INCLUDED:
+
+    - GetByIdAsync: supplier does not exist.
+    - UpdateAsync: supplier does not exist.
+    - DeleteAsync: supplier does not exist.
+
+ADDITIONAL SCENARIOS TO CONSIDER:
+
+    - Empty results from collection methods.
+    - Supplier code not found.
+    - Repository reports a code does not exist.
+    - GST number does not exist.
+    - PAN number does not exist.
+    - Multiple supplier IDs, including missing IDs.
+    - Repository or save-operation failures.
+    - Boundary cases for date-range searches.
+
+IMPORTANT:
+
+    The listed tests cover the service methods, but they do not cover every
+    possible outcome of every method.
+
+    A test count alone does not prove complete test coverage.
+
+===============================================================================
+28. HOW TO RUN THE TESTS
+===============================================================================
+
+OPTION 1: TERMINAL
+
+    Open a terminal in the solution directory.
+
+    Run:
+
+        dotnet test
+
+    This builds and executes the test projects selected by the command.
+
+OPTION 2: VISUAL STUDIO
+
+    1. Open the solution.
+    2. Build the solution.
+    3. Open Test Explorer.
+    4. Select Run All Tests.
+    5. Review passed and failed tests.
+
+RESULTS:
+
+    Green:
+        The test passed.
+
+    Red:
+        The test failed.
+
+    Failed tests should be investigated to determine whether the issue
+    is in the test setup, expected behavior, or application code.
+
+===============================================================================
+29. UNIT TESTING VS INTEGRATION TESTING
+===============================================================================
+
+UNIT TESTING:
+
+    Tests SupplierService using mocked dependencies.
+
+    Database required:
+        No.
+
+    Main objective:
+        Verify service behavior independently.
+
+INTEGRATION TESTING:
+
+    Tests how multiple components work together, such as the service,
+    repository, Entity Framework Core, and a test database.
+
+    Database required:
+        Usually a test database or suitable database test environment.
+
+    Main objective:
+        Verify that the components work together correctly.
+
+EXAMPLE:
+
+    Unit test:
+        Verify that GetByIdAsync returns the DTO when the mocked repository
+        returns a Supplier.
+
+    Integration test:
+        Insert a Supplier into a test database and verify that the actual
+        repository retrieves it correctly.
+
+BOTH TYPES ARE USEFUL:
+
+    Unit tests help isolate defects in individual components.
+
+    Integration tests help identify problems between connected components.
+
+===============================================================================
+30. FINAL SUMMARY
+===============================================================================
+
+SupplierServiceTests verifies the behavior of SupplierService through
+xUnit and Moq.
+
+The service is real, while its dependencies are mocked.
+
+Each test generally follows:
+
+    ARRANGE
+        Prepare data and configure mocks.
+
+    ACT
+        Execute the service method.
+
+    ASSERT
+        Verify the result or expected interaction.
+
+The current test class includes tests for all 16 SupplierService methods.
+
+However, additional scenarios are still needed to improve coverage.
+
+The next step is to run the tests, fix any compilation or assertion failures,
+and add tests for the important missing scenarios.
+
+===============================================================================
+                    END OF DOCUMENTATION
+===============================================================================
+*/
