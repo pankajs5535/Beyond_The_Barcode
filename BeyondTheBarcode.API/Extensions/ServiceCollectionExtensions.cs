@@ -6,6 +6,8 @@ using BeyondTheBarcode.Persistence.Data;
 using BeyondTheBarcode.Persistence.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 
+//using Microsoft.Extensions.Caching.Memory; //In-Memory Cache
+
 namespace BeyondTheBarcode.API.Extensions
 {
     public static class ServiceCollectionExtensions
@@ -17,9 +19,7 @@ namespace BeyondTheBarcode.API.Extensions
             {
                 options.AddPolicy("AllowReactApp", policy =>
                 {
-                    policy.WithOrigins("http://localhost:3000")
-                          .AllowAnyHeader()
-                          .AllowAnyMethod();
+                    policy.WithOrigins("http://localhost:3000").AllowAnyHeader().AllowAnyMethod();
                 });
             });
 
@@ -33,6 +33,9 @@ namespace BeyondTheBarcode.API.Extensions
             // -------------------- Swagger --------------------
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
+
+
+            services.AddScoped<IBatchTrackTraceService, BatchTrackTraceService>();
 
             // -------------------- Dependency Injection --------------------
             services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -51,6 +54,9 @@ namespace BeyondTheBarcode.API.Extensions
             services.AddScoped<IPickingPackingListService, PickingPackingListService>();
             services.AddScoped<IShipmentLogService, ShipmentLogService>();
             services.AddScoped<IBatchTrackTraceService, BatchTrackTraceService>();
+
+            // Register In-Memory Cache
+            services.AddMemoryCache();
 
             return services;
         }

@@ -4,22 +4,66 @@ using BeyondTheBarcode.Application.Interfaces.IUnitOfWork;
 using BeyondTheBarcode.Application.Interfaces.Services;
 using BeyondTheBarcode.Domain.Entities;
 
+
+using Microsoft.Extensions.Caching.Memory;
+
+
+
+
 namespace BeyondTheBarcode.Application.Services
 {
     public class MachineMasterService : IMachineMasterService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        //private readonly IUnitOfWork _unitOfWork;
 
-        public MachineMasterService(IUnitOfWork unitOfWork)
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IMemoryCache _memoryCache;
+        private const string MachineMasterCacheKey = "MachineMaster_All";
+
+        //public MachineMasterService(IUnitOfWork unitOfWork)
+        //{
+        //    _unitOfWork = unitOfWork;
+        //}
+
+
+        public MachineMasterService(IUnitOfWork unitOfWork, IMemoryCache memoryCache)
         {
             _unitOfWork = unitOfWork;
+            _memoryCache = memoryCache;
         }
+
+        //public async Task<IEnumerable<MachineMasterDto>> GetAllAsync()
+        //{
+        //    var machines = await _unitOfWork.MachineMasters.GetAllAsync();
+        //    return machines.Select(MapToDto);
+        //}
+
 
         public async Task<IEnumerable<MachineMasterDto>> GetAllAsync()
         {
-            var machines = await _unitOfWork.MachineMasters.GetAllAsync();
-            return machines.Select(MapToDto);
+            //In-Memory Cache
+
+            // Check whether data already exists in cache
+            if (_memoryCache.TryGetValue(MachineMasterCacheKey, out List<MachineMasterDto>? cachedMachines))
+            {
+                return cachedMachines!;
+
+            }
+
+            // Fetch data from database if cache is empty
+            var machines= await _unitOfWork.MachineMasters.GetAllAsync();
+
+
+            var machineDtos= machines.Select(MapToDto).ToList();
+
+            // Store data in cache for 10 minutes
+
+            _memoryCache.Set(MachineMasterCacheKey, machineDtos, TimeSpan.FromMinutes(10));
+
+            return machineDtos;
+
         }
+
 
         public async Task<MachineMasterDto?> GetByIdAsync(int id)
         {
@@ -123,6 +167,8 @@ namespace BeyondTheBarcode.Application.Services
 
             await _unitOfWork.MachineMasters.AddAsync(machine);
             await _unitOfWork.SaveAsync();
+
+            _memoryCache.Remove(MachineMasterCacheKey);
         }
 
         public async Task UpdateAsync(UpdateMachineMasterDto dto)
@@ -161,6 +207,8 @@ namespace BeyondTheBarcode.Application.Services
 
             _unitOfWork.MachineMasters.Update(machine);
             await _unitOfWork.SaveAsync();
+
+            _memoryCache.Remove(MachineMasterCacheKey);
         }
 
         public async Task DeleteAsync(int id)
@@ -172,6 +220,10 @@ namespace BeyondTheBarcode.Application.Services
 
             _unitOfWork.MachineMasters.Delete(machine);
             await _unitOfWork.SaveAsync();
+
+
+
+            _memoryCache.Remove(MachineMasterCacheKey);
         }
 
         private static MachineMasterDto MapToDto(MachineMaster machine)
