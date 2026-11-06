@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Runtime.Intrinsics.X86;
 using System.Text;
 
 namespace BeyondTheBarcode.Persistence.Repositories
@@ -22,7 +23,11 @@ namespace BeyondTheBarcode.Persistence.Repositories
 
         public virtual async Task<IEnumerable<T>> GetAllAsync()
         {
-            return await _dbSet.ToListAsync();
+            //return await _dbSet.ToListAsync();
+
+            //For read-only queries, we can use AsNoTracking() to reduce EF Core tracking overhead.
+
+            return await _dbSet.AsNoTracking().ToListAsync();
         }
 
         public virtual async Task<T?> GetByIdAsync(int id)

@@ -550,7 +550,7 @@ namespace BeyondTheBarcode.Persistence.Migrations
 
                     b.Property<string>("CurrentStatus")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<decimal?>("DepreciationRate")
                         .HasColumnType("decimal(18,2)");
@@ -575,7 +575,7 @@ namespace BeyondTheBarcode.Persistence.Migrations
 
                     b.Property<string>("MachineCode")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("MachineName")
                         .IsRequired()
@@ -583,7 +583,7 @@ namespace BeyondTheBarcode.Persistence.Migrations
 
                     b.Property<string>("MachineType")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("MaintenanceFrequency")
                         .HasColumnType("nvarchar(max)");
@@ -601,7 +601,7 @@ namespace BeyondTheBarcode.Persistence.Migrations
                         .HasColumnType("date");
 
                     b.Property<string>("PlantName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<decimal>("ProductionCapacity")
                         .HasColumnType("decimal(18,2)");
@@ -622,6 +622,19 @@ namespace BeyondTheBarcode.Persistence.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("MachineId");
+
+                    b.HasIndex("CurrentStatus");
+
+                    b.HasIndex("IsActive");
+
+                    b.HasIndex("MachineCode")
+                        .IsUnique();
+
+                    b.HasIndex("MachineType");
+
+                    b.HasIndex("NextMaintenanceDate");
+
+                    b.HasIndex("PlantName");
 
                     b.ToTable("MachineMasters");
                 });

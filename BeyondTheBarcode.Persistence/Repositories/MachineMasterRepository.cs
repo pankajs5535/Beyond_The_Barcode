@@ -21,20 +21,38 @@ namespace BeyondTheBarcode.Persistence.Repositories
             return await _dbSet.Where(x => x.MachineType == type && x.IsActive).ToListAsync();
         }
 
+        //public async Task<IEnumerable<MachineMaster>> SearchAsync(string keyword)
+        //{
+        //    keyword = keyword.Trim().ToLower();
+
+        //    return await _dbSet.Where(x =>
+        //        x.MachineCode.ToLower().Contains(keyword) ||
+        //        x.MachineName.ToLower().Contains(keyword) ||
+        //        x.MachineType.ToLower().Contains(keyword) ||
+        //        (x.Manufacturer ?? "").ToLower().Contains(keyword) ||
+        //        (x.ModelNumber ?? "").ToLower().Contains(keyword) ||
+        //        (x.SerialNumber ?? "").ToLower().Contains(keyword))
+        //        .ToListAsync();
+        //}
+
+
         public async Task<IEnumerable<MachineMaster>> SearchAsync(string keyword)
         {
-            keyword = keyword.Trim().ToLower();
+            if (string.IsNullOrWhiteSpace(keyword))
+                return Enumerable.Empty<MachineMaster>();
 
-            return await _dbSet.Where(x =>
-                x.MachineCode.ToLower().Contains(keyword) ||
-                x.MachineName.ToLower().Contains(keyword) ||
-                x.MachineType.ToLower().Contains(keyword) ||
-                (x.Manufacturer ?? "").ToLower().Contains(keyword) ||
-                (x.ModelNumber ?? "").ToLower().Contains(keyword) ||
-                (x.SerialNumber ?? "").ToLower().Contains(keyword))
+            keyword = keyword.Trim();
+
+            return await _dbSet
+                .Where(x =>
+                    x.MachineCode.Contains(keyword) ||
+                    x.MachineName.Contains(keyword) ||
+                    x.MachineType.Contains(keyword) ||
+                    (x.Manufacturer ?? "").Contains(keyword) ||
+                    (x.ModelNumber ?? "").Contains(keyword) ||
+                    (x.SerialNumber ?? "").Contains(keyword))
                 .ToListAsync();
         }
-
         public async Task<IEnumerable<MachineMaster>> GetActiveAsync()
         {
             return await _dbSet.Where(x => x.IsActive).ToListAsync();

@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/LoadTests/">
+    <File Path="machine-master-load-test.js" />
+  </Folder>
   <Project Path="BeyondTheBarcode.API/BeyondTheBarcode.API.csproj" />
   <Project Path="BeyondTheBarcode.Application/BeyondTheBarcode.Application.csproj" />
   <Project Path="BeyondTheBarcode.Domain/BeyondTheBarcode.Domain.csproj" />

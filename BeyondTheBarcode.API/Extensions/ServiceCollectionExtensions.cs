@@ -56,7 +56,19 @@ namespace BeyondTheBarcode.API.Extensions
             services.AddScoped<IBatchTrackTraceService, BatchTrackTraceService>();
 
             // Register In-Memory Cache
-            services.AddMemoryCache();
+            //services.AddMemoryCache();
+
+
+            // Register Redis Distributed Cache
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration =
+                    configuration.GetConnectionString("Redis");
+
+                options.InstanceName = "BeyondTheBarcode_";
+            });
+
+
 
             return services;
         }

@@ -114,9 +114,29 @@ public class ApplicationDbContext : DbContext
         // =========================
         // Machine Master
         // =========================
+        //modelBuilder.Entity<MachineMaster>(entity =>
+        //{
+        //    entity.HasKey(e => e.MachineId);
+        //});
+
+
+        // Machine Master Indexes
         modelBuilder.Entity<MachineMaster>(entity =>
         {
             entity.HasKey(e => e.MachineId);
+
+            entity.HasIndex(e => e.MachineCode)
+                  .IsUnique();
+
+            entity.HasIndex(e => e.MachineType);
+
+            entity.HasIndex(e => e.CurrentStatus);
+
+            entity.HasIndex(e => e.IsActive);
+
+            entity.HasIndex(e => e.PlantName);
+
+            entity.HasIndex(e => e.NextMaintenanceDate);
         });
 
         // =========================
